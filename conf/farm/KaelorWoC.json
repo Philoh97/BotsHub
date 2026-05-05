@@ -1,0 +1,51 @@
+﻿{
+	"main": {
+		"character": "Mr Kaelor",
+		"farm": "Ministerial Commendations",
+		"loot_configuration": "loot"
+	},
+	"run": {
+		"loop_mode": true,
+		"hard_mode": true,
+		"farm_materials_mid_run": false,
+		"consume_consumables": false,
+		"use_consets": false,
+		"use_scrolls": false,
+		"sort_items": false,
+		"collect_data": false,
+		"donate_faction_points": true,
+		"buy_faction_resources": false,
+		"buy_faction_scrolls": false,
+		"weapon_slot": 0,
+		"bags_count": 5,
+		"district": "Random EU",
+		"disable_rendering": true
+	},
+	"team": {
+		"automatic_team_setup": false,
+		"hero_1": "Gwen",
+		"hero_2": "Norgu",
+		"hero_3": "Vekk",
+		"hero_4": "Zhed Shadowhoof",
+		"hero_5": "Razah",
+		"hero_6": "Xandra",
+		"hero_7": "Olias",
+		"load_all_builds": true,
+		"load_player_build": true,
+		"load_hero_1_build": true,
+		"load_hero_2_build": true,
+		"load_hero_3_build": true,
+		"load_hero_4_build": true,
+		"load_hero_5_build": true,
+		"load_hero_6_build": true,
+		"load_hero_7_build": true,
+		"player_build": "OgGlQlVp6smsJRg19RTKexTkL2XsDC",
+		"hero_1_build": "OQhkAsC8gFKzJIHM9GCmOcaG4iB",
+		"hero_2_build": "OQhkAsC8gFKzJIHM9GCmOcaG4iB",
+		"hero_3_build": "OgVDE8gsS5ZvAIgcQZA0CRiIDA",
+		"hero_4_build": "OgVDE8gsS5ZvAIgcQZA0CRiIDA",
+		"hero_5_build": "OAqkEqiLJqa01U5EnIGj00kzw09F",
+		"hero_6_build": "OAmjAqkrpOYzwp17xBNtc3YnJA",
+		"hero_7_build": "OAhjQoGYIP3hq6FbYK8kmTuxJA"
+	}
+}
