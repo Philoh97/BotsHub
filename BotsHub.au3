@@ -187,7 +187,7 @@ Func Main()
 	If $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 		CreateGUI()
 		If $run_mode == 'LAUNCH_HUB' Then ApplyLaunchHubCommandLine()
-		ApplyConfigToGUI()
+		If $run_mode == 'GUI' Then ApplyConfigToGUI()
 		FillConfigurationCombo($run_configuration)
 		GUISetState(@SW_SHOWNORMAL)
 		Info('GW Bot Hub ' & $GW_BOT_HUB_VERSION)
@@ -248,7 +248,13 @@ Func ApplyLaunchHubCommandLine()
 	$launchhub_configuration = $cmdLine[1]
 	$launchhub_loot_configuration = $cmdLine[2]
 
-	If $launchhub_configuration <> '' Then LoadRunConfigurationByName($launchhub_configuration)
+	If $launchhub_configuration <> '' Then
+		If LoadRunConfigurationByName($launchhub_configuration) Then
+			ApplyConfigToGUI()
+			LoadDefaultLootConfiguration()
+			BuildTreeViewFromCache($gui_treeview_lootoptions)
+		EndIf
+	EndIf
 
 	If $cmdLine[0] >= 3 Then
 		$launchhub_character = $cmdLine[3]
