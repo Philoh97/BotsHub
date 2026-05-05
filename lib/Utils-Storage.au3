@@ -83,11 +83,6 @@ Func InventoryManagementBeforeRun($tradeTown = $ID_EYE_OF_THE_NORTH)
 		If GetGoldCharacter() > 60000 Then BalanceCharacterGold(10000)
 		SellItemsToMerchant()
 	EndIf
-	; Max gold in Xunlai chest is 1000 platinums
-	If $cache['Store items.Gold'] Then
-		If GetMapType() <> $ID_OUTPOST Then TravelToOutpost($tradeTown, $district_name)
-		BalanceCharacterGold(10000)
-	EndIf
 	; TODO: generalize this for all materials
 	If GetGoldCharacter() > 10000 Then
 		If $cache['Buy items.Lockpicks'] Then
@@ -100,6 +95,11 @@ Func InventoryManagementBeforeRun($tradeTown = $ID_EYE_OF_THE_NORTH)
 			TravelToOutpost($tradeTown, $district_name)
 			BuyRareMaterialFromMerchantUntilPoor($ID_GLOB_OF_ECTOPLASM, 10000, $ID_OBSIDIAN_SHARD)
 		EndIf
+	EndIf
+	; Max gold in Xunlai chest is 1000 platinums
+	If $cache['Store items.Gold'] Then
+		If GetMapType() <> $ID_OUTPOST Then TravelToOutpost($tradeTown, $district_name)
+		BalanceCharacterGold(10000)
 	EndIf
 	If $cache['@store.something'] Then
 		If GetMapType() <> $ID_OUTPOST Then TravelToOutpost($tradeTown, $district_name)
