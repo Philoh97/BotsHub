@@ -93,7 +93,7 @@ Func InventoryManagementBeforeRun($tradeTown = $ID_EYE_OF_THE_NORTH)
 			BuyRareMaterialFromMerchantUntilPoor($ID_OBSIDIAN_SHARD, 10000, $ID_GLOB_OF_ECTOPLASM)
 		ElseIf $cache['Buy items.Rare Materials.Glob of Ectoplasm'] Then
 			TravelToOutpost($tradeTown, $district_name)
-			BuyRareMaterialFromMerchantUntilPoor($ID_GLOB_OF_ECTOPLASM, 10000, $ID_OBSIDIAN_SHARD)
+			BuyRareMaterialFromMerchantUntilPoor($ID_GLOB_OF_ECTOPLASM, 2000, $ID_OBSIDIAN_SHARD)
 		EndIf
 	EndIf
 	; Max gold in Xunlai chest is 1000 platinums
@@ -926,16 +926,51 @@ Func BuyRareMaterialFromMerchantUntilPoor($materialModelID, $poorThreshold = 200
 			Return
 		EndIf
 	EndIf
-	Local $amount = Floor((GetGoldCharacter() - $poorThreshold) / $traderPrice)
-	Info('Buying ' & $amount & ' items for ' & $traderPrice)
-	While $amount > 0
-		TraderBuy()
+	Local $bought = 0
+	While True
+		Local $characterGold = GetGoldCharacter()
+		Local $storageGold = GetGoldStorage()
+		Local $totalGold = $characterGold + $storageGold
+
+		If $traderPrice <= 0 Then
+			Warn('Stopping rare material purchase because trader price is unavailable.')
+			ExitLoop
+		EndIf
+		If ($totalGold - $traderPrice) < $poorThreshold Then ExitLoop
+
+		If $characterGold < $traderPrice Then
+			Local $withdrawAmount = _Min(100000 - $characterGold, $storageGold)
+			If $withdrawAmount <= 0 Then
+				Warn('Not enough character gold and no storage gold available to continue buying rare materials.')
+				ExitLoop
+			EndIf
+
+			Debug('Withdrawing ' & $withdrawAmount & ' gold from Xunlai for rare material purchase')
+			WithdrawGold($withdrawAmount)
+			RandomSleep(500)
+			$characterGold = GetGoldCharacter()
+			If $characterGold < $traderPrice Then
+				Warn('Could not withdraw enough gold to continue buying rare materials.')
+				ExitLoop
+			EndIf
+		EndIf
+
+		Info('Buying rare material for ' & $traderPrice & ' gold')
+		If Not TraderBuy() Then
+			Warn('Trader buy failed, stopping rare material purchase.')
+			ExitLoop
+		EndIf
+		$bought += 1
 		RandomSleep(250)
-		TraderRequest($IDMaterialToBuy)
+
+		If Not TraderRequest($IDMaterialToBuy) Then
+			Warn('Could not refresh trader quote after purchase.')
+			ExitLoop
+		EndIf
 		RandomSleep(250)
 		$traderPrice = GetTraderCostValue()
-		$amount -= 1
 	WEnd
+	Info('Bought ' & $bought & ' rare materials. Character gold: ' & GetGoldCharacter() & ', storage gold: ' & GetGoldStorage())
 EndFunc
 
 
