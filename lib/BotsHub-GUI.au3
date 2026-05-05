@@ -63,7 +63,7 @@ Global $GUI_ENABLED = True
 
 ; TODO: rename GUI to lowercase snake_case - do it once we move GUI to a separate file
 Global $gui_botshub, $gui_tabs_parent, $gui_tab_main, $gui_tab_runoptions, $gui_tab_lootoptions, $gui_tab_farminfos, $gui_tab_lootoptions, $gui_tab_teamoptions
-Global $gui_console, $gui_combo_characterchoice, $gui_combo_farmchoice, $gui_startbutton, $gui_farmprogress
+Global $gui_console, $gui_combo_characterchoice, $gui_combo_farmchoice, $gui_startbutton, $gui_stopbutton, $gui_farmprogress
 Global $gui_label_dynamicexecution, $gui_input_dynamicexecution, $gui_button_dynamicexecution, $gui_renderbutton, $gui_renderlabel, _
 		$gui_label_bagscount, $gui_combo_bagscount, $gui_label_traveldistrict, $gui_combo_districtchoice, _
 		$gui_label_weaponslot, $gui_combo_weaponslot, $gui_icon_saveconfig, $gui_combo_configchoice
@@ -119,15 +119,19 @@ Func CreateGUI()
 	; === Buttons common to all tabs ===
 	$gui_combo_characterchoice = GUICtrlCreateCombo('No character selected', 10, 470, 150, 20)
 	$gui_combo_farmchoice = GUICtrlCreateCombo('Choose a farm', 170, 470, 150, 20, BitOR($CBS_DROPDOWNLIST, $WS_VSCROLL))
-	$gui_startbutton = GUICtrlCreateButton('Start', 330, 470, 150, 21)
+	$gui_startbutton = GUICtrlCreateButton('Start', 330, 470, 105, 21)
+	$gui_stopbutton = GUICtrlCreateButton('Stop', 445, 470, 35, 21)
 	$gui_farmprogress = GUICtrlCreateProgress(490, 470, 150, 21)
 	$gui_combo_configchoice = GUICtrlCreateCombo('Default Farm Configuration', 400, 10, 210, 22, BitOR($CBS_DROPDOWNLIST, $WS_VSCROLL))
 	$gui_icon_saveconfig = GUICtrlCreatePic(@ScriptDir & '/doc/save.jpg', 615, 12, 20, 20)
 	GUICtrlSetData($gui_combo_farmchoice, $AVAILABLE_FARMS, 'Choose a farm')
 	GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTBLUE)
+	GUICtrlSetBkColor($gui_stopbutton, $COLOR_LIGHTCORAL)
+	GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
 
 	GUISetOnEvent($gui_event_close, 'GuiMainButtonHandler')
 	GUICtrlSetOnEvent($gui_startbutton, 'GuiStartButtonHandler')
+	GUICtrlSetOnEvent($gui_stopbutton, 'GuiStopButtonHandler')
 	GUICtrlSetOnEvent($gui_combo_farmchoice, 'GuiMainButtonHandler')
 	GUICtrlSetOnEvent($gui_combo_configchoice, 'GuiMainButtonHandler')
 	GUICtrlSetOnEvent($gui_icon_saveconfig, 'GuiMainButtonHandler')
@@ -633,23 +637,44 @@ Func GuiStartButtonHandler()
 			If (Authentification($character_name) <> $SUCCESS) Then Return
 			$runtime_status = 'INITIALIZED'
 			GUICtrlSetData($gui_startbutton, 'Pause')
+			GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
 			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTCORAL)
 			$runtime_status = 'RUNNING'
 		Case 'INITIALIZED'
+			GUICtrlSetData($gui_startbutton, 'Pause')
+			GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
+			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTCORAL)
 			$runtime_status = 'RUNNING'
 		Case 'RUNNING'
-			GUICtrlSetData($gui_startbutton, 'Will pause after this run')
+			GUICtrlSetData($gui_startbutton, 'Pausing...')
 			GUICtrlSetState($gui_startbutton, $GUI_DISABLE)
+			GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
 			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTYELLOW)
 			$runtime_status = 'WILL_PAUSE'
 		Case 'WILL_PAUSE'
 			MsgBox(0, 'Error', 'You should not be able to press Pause when bot is already pausing.')
 		Case 'PAUSED'
 			GUICtrlSetData($gui_startbutton, 'Pause')
+			GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
 			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTCORAL)
 			$runtime_status = 'RUNNING'
 		Case Else
 			MsgBox(0, 'Error', 'Unknown status <' & $runtime_status & '>')
+	EndSwitch
+EndFunc
+
+
+;~ Stop after the current run, run inventory management and close the game client.
+Func GuiStopButtonHandler()
+	Switch $runtime_status
+		Case 'RUNNING', 'INITIALIZED', 'PAUSED', 'WILL_PAUSE'
+			Info('Stopping...')
+			$requested_stop = True
+			GUICtrlSetData($gui_startbutton, 'Stopping...')
+			GUICtrlSetState($gui_startbutton, $GUI_DISABLE)
+			GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
+			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTYELLOW)
+			$runtime_status = 'WILL_PAUSE'
 	EndSwitch
 EndFunc
 
@@ -1731,6 +1756,8 @@ EndFunc
 Func EnableStartButton()
 	GUICtrlSetData($gui_startbutton, 'Start')
 	GUICtrlSetState($gui_startbutton, $GUI_ENABLE)
+	GUICtrlSetData($gui_stopbutton, 'Stop')
+	GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
 	GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTBLUE)
 EndFunc
 

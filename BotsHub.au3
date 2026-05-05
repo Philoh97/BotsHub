@@ -107,12 +107,15 @@ Global Const $AVAILABLE_HEROES = '||Acolyte Jin|Acolyte Sousuke|Anton|Dunkoro|Ge
 ; UNINITIALIZED -> INITIALIZED -> RUNNING -> WILL_PAUSE -> PAUSED -> RUNNING
 Global $runtime_status = 'UNINITIALIZED'
 Global $run_mode = 'GUI'
+Global $requested_stop = False
 Global $slave_index = 0
 Global $process_id = ''
 Global $character_name = ''
 Global $farm_name = ''
 Global $run_configuration = 'Default Farm Configuration'
 Global $loot_configuration = 'Default Loot Configuration'
+Global $launchhub_configuration = ''
+Global $launchhub_loot_configuration = ''
 ; If set to 0, disables inventory management
 Global $inventory_space_needed = 5
 Global $run_timer = Null
@@ -160,22 +163,28 @@ Func Main()
 		Exit 1
 	EndIf
 
-	If $cmdLine[0] <> 0 Then $run_mode = 'HEADLESS'
+	If IsLegacyHeadlessCommandLine() Then
+		$run_mode = 'HEADLESS'
+	ElseIf IsLaunchHubCommandLine() Then
+		$run_mode = 'LAUNCH_HUB'
+	EndIf
 
 	; GUI free steps
 	FillFarmMap()
 	LoadDefaultRunConfiguration()
 	LoadDefaultLootConfiguration()
 
-	If $run_mode == 'GUI' Then
+	If $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 		CreateGUI()
+		If $run_mode == 'LAUNCH_HUB' Then ApplyLaunchHubCommandLine()
 		ApplyConfigToGUI()
-		FillConfigurationCombo()
+		FillConfigurationCombo($run_configuration)
 		GUISetState(@SW_SHOWNORMAL)
 		Info('GW Bot Hub ' & $GW_BOT_HUB_VERSION)
 		; Authentication
 		ScanAndUpdateGameClients()
 		RefreshCharactersComboBox()
+		If $run_mode == 'LAUNCH_HUB' Then StartLaunchHubRun()
 	ElseIf $run_mode == 'HEADLESS' Then
 		; Need minimum 4 things to run a bot: slave index, process ID, character name and farm name
 		If $cmdLine[0] < 4 Then
@@ -212,6 +221,102 @@ Func Main()
 EndFunc
 
 
+;~ Return whether arguments match the current root headless contract.
+Func IsLegacyHeadlessCommandLine()
+	Return $cmdLine[0] >= 4
+EndFunc
+
+
+;~ Return whether arguments match MacTry LaunchHub: config, loot preset, optional character.
+Func IsLaunchHubCommandLine()
+	Return $cmdLine[0] >= 2 And $cmdLine[0] < 4
+EndFunc
+
+
+;~ Apply MacTry LaunchHub command line arguments to the new hub runtime.
+Func ApplyLaunchHubCommandLine()
+	$launchhub_configuration = $cmdLine[1]
+	$launchhub_loot_configuration = $cmdLine[2]
+
+	If $launchhub_configuration <> '' Then LoadRunConfigurationByName($launchhub_configuration)
+	If $launchhub_loot_configuration <> '' And LoadLootConfigurationByName($launchhub_loot_configuration) Then BuildTreeViewFromCache($gui_treeview_lootoptions)
+
+	If $cmdLine[0] >= 3 Then $character_name = $cmdLine[3]
+	If $character_name <> '' Then GUICtrlSetData($gui_combo_characterchoice, '', $character_name)
+
+	Info('Running in LaunchHub mode with configuration: ' & $launchhub_configuration & ' loot: ' & $launchhub_loot_configuration & ' character: ' & $character_name)
+EndFunc
+
+
+;~ Start a LaunchHub-created GUI instance after config and character selection are ready.
+Func StartLaunchHubRun()
+	If $character_name == '' Or $character_name == 'No character selected' Then
+		Warn('LaunchHub mode did not provide a character name. Waiting for manual start.')
+		Return
+	EndIf
+
+	GUICtrlSetData($gui_combo_characterchoice, '', $character_name)
+	If (Authentification($character_name) <> $SUCCESS) Then Return
+
+	$runtime_status = 'RUNNING'
+	GUICtrlSetData($gui_startbutton, 'Pause')
+	GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
+	GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTCORAL)
+EndFunc
+
+
+;~ Load a run configuration by name from the new farm folder or the old characters folder.
+Func LoadRunConfigurationByName($configurationName)
+	Local $normalizedName = NormalizeConfigurationName($configurationName)
+	If $normalizedName == '' Then Return False
+
+	Local $filePath = @ScriptDir & '/conf/farm/' & $normalizedName & '.json'
+	If Not FileExists($filePath) Then $filePath = @ScriptDir & '/conf/characters/' & $normalizedName & '.json'
+	If Not FileExists($filePath) Then
+		Warn('Run configuration not found: ' & $configurationName)
+		Return False
+	EndIf
+
+	LoadRunConfiguration($filePath)
+	$run_configuration = $normalizedName
+	Return True
+EndFunc
+
+
+;~ Load a loot configuration by name from the root loot folder.
+Func LoadLootConfigurationByName($configurationName)
+	Local $normalizedName = NormalizeConfigurationName($configurationName)
+	If $normalizedName == '' Then Return False
+
+	If StringUpper($normalizedName) == 'WEB' Then
+		Warn('WEB loot configuration is not available in the root hub yet. Keeping current loot configuration.')
+		Return False
+	EndIf
+
+	Local $filePath = @ScriptDir & '/conf/loot/' & $normalizedName & '.json'
+	If Not FileExists($filePath) Then
+		Warn('Loot configuration not found: ' & $configurationName)
+		Return False
+	EndIf
+
+	LoadLootConfiguration($filePath)
+	Return True
+EndFunc
+
+
+;~ Strip optional extension/path parts so LaunchHub can pass plain preset names.
+Func NormalizeConfigurationName($configurationName)
+	Local $name = StringStripWS(String($configurationName), 3)
+	If $name == '' Then Return ''
+	If StringRight(StringLower($name), 5) == '.json' Then $name = StringTrimRight($name, 5)
+	Local $lastBackslash = StringInStr($name, '\', 0, -1)
+	Local $lastSlash = StringInStr($name, '/', 0, -1)
+	Local $lastSeparator = _Max($lastBackslash, $lastSlash)
+	If $lastSeparator > 0 Then $name = StringMid($name, $lastSeparator + 1)
+	Return $name
+EndFunc
+
+
 ;~ Main loop of the program
 Func BotHubLoop()
 	While True
@@ -230,15 +335,39 @@ Func BotHubLoop()
 		EndIf
 
 		If ($runtime_status == 'WILL_PAUSE') Then
-			Warn('Paused.')
-			$runtime_status = 'PAUSED'
-			If $run_mode == 'GUI' Then
+			If $requested_stop Then
+				If Not GetIsRendering() Then EnableRendering()
+				Info('Stop requested: running inventory management before closing...')
+				InventoryManagementBeforeRun()
+				ResetBotsSetups()
+				Warn('Stopped.')
+				CloseGameClient()
+				Exit
+			Else
+				Warn('Paused.')
+				$runtime_status = 'PAUSED'
+			EndIf
+
+			If $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 				EnableStartButton()
 				EnableGUIComboboxes()
+				GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
 			EndIf
 		EndIf
 		Sleep(1000)
 	WEnd
+EndFunc
+
+
+;~ Close the attached Guild Wars client before exiting BotHub.
+Func CloseGameClient()
+	If Not GetIsRendering() Then EnableRendering()
+
+	Local $windowHandle = GetWindowHandle()
+	If $windowHandle <> '' Then
+		Sleep(1000)
+		WinClose($windowHandle)
+	EndIf
 EndFunc
 
 
