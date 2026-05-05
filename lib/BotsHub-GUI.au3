@@ -666,13 +666,20 @@ EndFunc
 
 ;~ Stop after the current run, run inventory management and close the game client.
 Func GuiStopButtonHandler()
+	If $requested_stop Then
+		Info('Exiting immediately...')
+		CloseGameClient()
+		Exit
+	EndIf
+
 	Switch $runtime_status
 		Case 'RUNNING', 'INITIALIZED', 'PAUSED', 'WILL_PAUSE'
 			Info('Stopping...')
 			$requested_stop = True
 			GUICtrlSetData($gui_startbutton, 'Stopping...')
+			GUICtrlSetData($gui_stopbutton, 'Exit')
 			GUICtrlSetState($gui_startbutton, $GUI_DISABLE)
-			GUICtrlSetState($gui_stopbutton, $GUI_DISABLE)
+			GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
 			GUICtrlSetBkColor($gui_startbutton, $COLOR_LIGHTYELLOW)
 			$runtime_status = 'WILL_PAUSE'
 	EndSwitch
