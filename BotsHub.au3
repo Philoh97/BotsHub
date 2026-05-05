@@ -249,7 +249,6 @@ Func ApplyLaunchHubCommandLine()
 	$launchhub_loot_configuration = $cmdLine[2]
 
 	If $launchhub_configuration <> '' Then LoadRunConfigurationByName($launchhub_configuration)
-	If $launchhub_loot_configuration <> '' And LoadLootConfigurationByName($launchhub_loot_configuration) Then BuildTreeViewFromCache($gui_treeview_lootoptions)
 
 	If $cmdLine[0] >= 3 Then
 		$launchhub_character = $cmdLine[3]
