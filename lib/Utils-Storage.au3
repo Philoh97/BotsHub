@@ -683,6 +683,7 @@ EndFunc
 
 
 Func CheckStoreWeapon($weaponItem)
+	If DllStructGetData($weaponItem, 'Customized') <> 0 Then Return False
 	Local $weaponRarity = GetRarity($weaponItem)
 	If $weaponRarity == $RARITY_GRAY Or $weaponRarity == $RARITY_RED Then Return False
 	Local $weaponRarityName = $RARITY_NAMES_FROM_IDS[$weaponRarity]
