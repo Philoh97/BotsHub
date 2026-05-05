@@ -116,6 +116,16 @@ Global $run_configuration = 'Default Farm Configuration'
 Global $loot_configuration = 'Default Loot Configuration'
 Global $launchhub_configuration = ''
 Global $launchhub_loot_configuration = ''
+Global $launchhub_character = ''
+Global $log_stats_key = ''
+Global $persist_runs = 0
+Global $persist_successes = 0
+Global $persist_failures = 0
+Global $persist_loaded = False
+Global $avg_run_seconds = 0
+Global $stats_runs = 0
+Global $stats_successes = 0
+Global $stats_failures = 0
 ; If set to 0, disables inventory management
 Global $inventory_space_needed = 5
 Global $run_timer = Null
@@ -241,7 +251,10 @@ Func ApplyLaunchHubCommandLine()
 	If $launchhub_configuration <> '' Then LoadRunConfigurationByName($launchhub_configuration)
 	If $launchhub_loot_configuration <> '' And LoadLootConfigurationByName($launchhub_loot_configuration) Then BuildTreeViewFromCache($gui_treeview_lootoptions)
 
-	If $cmdLine[0] >= 3 Then $character_name = $cmdLine[3]
+	If $cmdLine[0] >= 3 Then
+		$launchhub_character = $cmdLine[3]
+		$character_name = $launchhub_character
+	EndIf
 	If $character_name <> '' Then GUICtrlSetData($gui_combo_characterchoice, '', $character_name)
 
 	Info('Running in LaunchHub mode with configuration: ' & $launchhub_configuration & ' loot: ' & $launchhub_loot_configuration & ' character: ' & $character_name)
@@ -250,6 +263,7 @@ EndFunc
 
 ;~ Start a LaunchHub-created GUI instance after config and character selection are ready.
 Func StartLaunchHubRun()
+	If $launchhub_character <> '' Then $character_name = $launchhub_character
 	If $character_name == '' Or $character_name == 'No character selected' Then
 		Warn('LaunchHub mode did not provide a character name. Waiting for manual start.')
 		Return
@@ -279,6 +293,7 @@ Func LoadRunConfigurationByName($configurationName)
 
 	LoadRunConfiguration($filePath)
 	$run_configuration = $normalizedName
+	$log_stats_key = GetPresetPrefix($normalizedName)
 	Return True
 EndFunc
 
@@ -314,6 +329,134 @@ Func NormalizeConfigurationName($configurationName)
 	Local $lastSeparator = _Max($lastBackslash, $lastSlash)
 	If $lastSeparator > 0 Then $name = StringMid($name, $lastSeparator + 1)
 	Return $name
+EndFunc
+
+
+;~ Prefix used by LaunchHub for logItems aggregation.
+Func GetPresetPrefix($configurationName)
+	Local $name = StringStripWS(String($configurationName), 3)
+	If $name == '' Then Return ''
+	Local $prefixes[16] = ['Cubu', 'Reforge', 'Sinfull', 'Lynx', 'Selfish', 'Niluphar', 'Velun', 'Korri', 'Virell', 'Kaelor', 'Myrren', 'Arvyn', 'Valerian', 'Ironveil', 'Emberfall', 'Duskbane']
+	For $i = 0 To UBound($prefixes) - 1
+		Local $prefix = $prefixes[$i]
+		If StringLower(StringLeft($name, StringLen($prefix))) == StringLower($prefix) Then Return $prefix
+	Next
+	Return ''
+EndFunc
+
+
+Func EnsureLaunchHubLogDirs()
+	If Not FileExists(@ScriptDir & '\log') Then DirCreate(@ScriptDir & '\log')
+	If Not FileExists(@ScriptDir & '\logItems') Then DirCreate(@ScriptDir & '\logItems')
+EndFunc
+
+
+Func GetTextLogPath()
+	Local $key = StringStripWS(String($character_name), 3)
+	If $key == '' Or $key == 'No character selected' Then $key = '0'
+	Return @ScriptDir & '\log\' & $key & '.log'
+EndFunc
+
+
+Func WriteTextLogLine($line)
+	If $line == '' Then Return
+	EnsureLaunchHubLogDirs()
+	FileWriteLine(GetTextLogPath(), $line)
+EndFunc
+
+
+Func GetStatsLogPath()
+	Local $key = StringStripWS(String($log_stats_key), 3)
+	If $key == '' Then $key = StringStripWS(String($character_name), 3)
+	If $key == '' Or $key == 'No character selected' Then $key = '0'
+	Return @ScriptDir & '\logItems\' & $key & '.log'
+EndFunc
+
+
+Func LoadPersistentRunCounters($statsLogPath)
+	$persist_runs = 0
+	$persist_successes = 0
+	$persist_failures = 0
+	$persist_loaded = True
+
+	If Not FileExists($statsLogPath) Then Return
+
+	Local $handle = FileOpen($statsLogPath, $FO_READ + $FO_UTF8)
+	If $handle = -1 Then Return
+
+	While 1
+		Local $line = FileReadLine($handle)
+		If @error Then ExitLoop
+
+		$line = StringStripWS($line, 3)
+		Local $separator = StringInStr($line, ':')
+		If $separator <= 0 Then ContinueLoop
+
+		Local $key = StringLeft($line, $separator - 1)
+		Local $value = Number(StringMid($line, $separator + 1))
+		Switch $key
+			Case 'Runs'
+				$persist_runs = $value
+			Case 'Successes'
+				$persist_successes = $value
+			Case 'Failures'
+				$persist_failures = $value
+		EndSwitch
+	WEnd
+
+	FileClose($handle)
+EndFunc
+
+
+Func WriteStatIfGtZero($handle, $key, $value)
+	If Number($value) > 0 Then FileWriteLine($handle, $key & ':' & $value)
+EndFunc
+
+
+Func PersistLaunchHubStats($runs, $successes, $failures, $totalGold, $totalGoldItems, $storageFreeSlots, $totalEctos, $totalObsidianShards, $totalLockpicks, $totalMargoniteGemstones, $totalStygianGemstones, $totalTitanGemstones, $totalTormentGemstones, $totalDiessaChalices, $totalRinRelics, $totalDestroyerCores, $totalGlacialStones, $totalWarSupplies, $totalMinisterialCommendations, $totalJadeBracelets, $totalChunksOfDrakeFlesh, $totalSkaleFins, $totalWintersdayGifts, $totalTrickOrTreats, $totalBirthdayCupcakes, $totalGoldenEggs, $totalPumpkinPieSlices, $totalHoneyCombs, $totalFruitCakes, $totalSugaryBlueDrinks, $totalChocolateBunnies, $totalDeliciousCakes, $totalAmberChunks, $totalJadeiteShards)
+	EnsureLaunchHubLogDirs()
+
+	Local $handle = FileOpen(GetStatsLogPath(), $FO_OVERWRITE + $FO_CREATEPATH + $FO_UTF8)
+	If $handle = -1 Then Return
+
+	FileWriteLine($handle, 'Gold:' & $totalGold)
+	FileWriteLine($handle, 'GoldItems:' & $totalGoldItems)
+	FileWriteLine($handle, 'AvgRunSeconds:' & $avg_run_seconds)
+	FileWriteLine($handle, 'StorageFreeSlots:' & $storageFreeSlots)
+	FileWriteLine($handle, 'Runs:' & $runs)
+	FileWriteLine($handle, 'Successes:' & $successes)
+	FileWriteLine($handle, 'Failures:' & $failures)
+
+	WriteStatIfGtZero($handle, 'Ectos', $totalEctos)
+	WriteStatIfGtZero($handle, 'Obsidian Shards', $totalObsidianShards)
+	WriteStatIfGtZero($handle, 'Lockpicks', $totalLockpicks)
+	WriteStatIfGtZero($handle, 'Margonite Gemstones', $totalMargoniteGemstones)
+	WriteStatIfGtZero($handle, 'Stygian Gemstones', $totalStygianGemstones)
+	WriteStatIfGtZero($handle, 'Titan Gemstones', $totalTitanGemstones)
+	WriteStatIfGtZero($handle, 'Torment Gemstones', $totalTormentGemstones)
+	WriteStatIfGtZero($handle, 'Diessa Chalices', $totalDiessaChalices)
+	WriteStatIfGtZero($handle, 'Rin Relics', $totalRinRelics)
+	WriteStatIfGtZero($handle, 'Destroyer Cores', $totalDestroyerCores)
+	WriteStatIfGtZero($handle, 'Glacial Stones', $totalGlacialStones)
+	WriteStatIfGtZero($handle, 'War Supplies', $totalWarSupplies)
+	WriteStatIfGtZero($handle, 'Ministerial Commendations', $totalMinisterialCommendations)
+	WriteStatIfGtZero($handle, 'Jade Bracelets', $totalJadeBracelets)
+	WriteStatIfGtZero($handle, 'Chunks Of Drake Flesh', $totalChunksOfDrakeFlesh)
+	WriteStatIfGtZero($handle, 'Skale Fins', $totalSkaleFins)
+	WriteStatIfGtZero($handle, 'Wintersday Gifts', $totalWintersdayGifts)
+	WriteStatIfGtZero($handle, 'Trick Or Treats', $totalTrickOrTreats)
+	WriteStatIfGtZero($handle, 'Birthday Cupcakes', $totalBirthdayCupcakes)
+	WriteStatIfGtZero($handle, 'Golden Eggs', $totalGoldenEggs)
+	WriteStatIfGtZero($handle, 'Pumpkin Pie Slices', $totalPumpkinPieSlices)
+	WriteStatIfGtZero($handle, 'Honey Combs', $totalHoneyCombs)
+	WriteStatIfGtZero($handle, 'Fruit Cakes', $totalFruitCakes)
+	WriteStatIfGtZero($handle, 'Sugary Blue Drinks', $totalSugaryBlueDrinks)
+	WriteStatIfGtZero($handle, 'Chocolate Bunnies', $totalChocolateBunnies)
+	WriteStatIfGtZero($handle, 'Delicious Cakes', $totalDeliciousCakes)
+	WriteStatIfGtZero($handle, 'Amber Chunks', $totalAmberChunks)
+	WriteStatIfGtZero($handle, 'Jadeite Shards', $totalJadeiteShards)
+
+	FileClose($handle)
 EndFunc
 
 
@@ -976,6 +1119,20 @@ Func Authentification($characterName)
 		EndIf
 		RenameGUI('GW Bot Hub - ' & $characterName)
 	EndIf
+	$character_name = $characterName
+	EnsureLaunchHubLogDirs()
+	LoadPersistentRunCounters(GetStatsLogPath())
+	ApplyConfiguredRenderingState()
 	Return $SUCCESS
+EndFunc
+
+
+;~ Apply the configured rendering state after game client initialization.
+Func ApplyConfiguredRenderingState()
+	If $rendering_enabled Then
+		If Not GetIsRendering() Then EnableRendering()
+	Else
+		If GetIsRendering() Then DisableRendering()
+	EndIf
 EndFunc
 #EndRegion Authentification and Login

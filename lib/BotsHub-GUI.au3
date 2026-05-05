@@ -1099,6 +1099,17 @@ Func UpdateStats($result, $elapsedTime = 0)
 	Local Static $kurzickTitlePoints = GetKurzickTitle()
 	Local Static $luxonTitlePoints = GetLuxonTitle()
 
+	Local Static $persistInitDone = False
+	If Not $persistInitDone Then
+		If $persist_loaded Then
+			$runs = $persist_runs
+			$successes = $persist_successes
+			$failures = $persist_failures
+			If $runs > 0 Then $successRatio = Round(($successes / $runs) * 100, 2)
+		EndIf
+		$persistInitDone = True
+	EndIf
+
 	; $NOT_STARTED = -1 : Before every farm loop
 	If $result == $NOT_STARTED Then
 		Info('Starting run ' & ($runs + 1))
@@ -1122,9 +1133,13 @@ Func UpdateStats($result, $elapsedTime = 0)
 	GUICtrlSetData($gui_label_successes_value, $successes)
 	GUICtrlSetData($gui_label_failures_value, $failures)
 	GUICtrlSetData($gui_label_successratio_value, $successRatio & ' %')
+	$stats_runs = $runs
+	$stats_successes = $successes
+	$stats_failures = $failures
 	GUICtrlSetData($gui_label_time_value, ConvertTimeToHourString($totalTime))
 	Local $timePerRun = $runs == 0 ? 0 : $totalTime / $runs
 	GUICtrlSetData($gui_label_timeperrun_value, ConvertTimeToMinutesString($timePerRun))
+	$avg_run_seconds = Floor($timePerRun / 1000)
 	$totalChests += CountOpenedChests()
 	ClearChestsMap()
 	GUICtrlSetData($gui_label_chests_value, $totalChests)
@@ -1317,6 +1332,9 @@ Func UpdateItemStats()
 	GUICtrlSetData($gui_label_deliciouscakes_value, $totalDeliciousCakes)
 	GUICtrlSetData($gui_label_amberchunks_value, $totalAmberChunks)
 	GUICtrlSetData($gui_label_jadeiteshards_value, $totalJadeiteShards)
+
+	Local $storageFreeSlots = CountSlots(8, 21)
+	PersistLaunchHubStats($stats_runs, $stats_successes, $stats_failures, $totalGold, $totalGoldItems, $storageFreeSlots, $totalEctos, $totalObsidianShards, $totalLockpicks, $totalMargoniteGemstones, $totalStygianGemstones, $totalTitanGemstones, $totalTormentGemstones, $totalDiessaChalices, $totalRinRelics, $totalDestroyerCores, $totalGlacialStones, $totalWarSupplies, $totalMinisterialCommendations, $totalJadeBracelets, $totalChunksOfDrakeFlesh, $totalSkaleFins, $totalWintersdayGifts, $totalTrickOrTreats, $totalBirthdayCupcakes, $totalGoldenEggs, $totalPumpkinPieSlices, $totalHoneyCombs, $totalFruitCakes, $totalSugaryBlueDrinks, $totalChocolateBunnies, $totalDeliciousCakes, $totalAmberChunks, $totalJadeiteShards)
 
 	; resetting items counters to count income surplus for the next run
 	$preRunGold = GetGoldCharacter()
@@ -1540,6 +1558,7 @@ EndFunc
 ;~ Print to console with timestamp
 ;~ LOGLEVEL= 0-Debug, 1-Info, 2-Notice, 3-Warning, 4-Error
 Func Out($TEXT, $LOGLEVEL = 1)
+	If $TEXT == '' Then Return
 	If $LOGLEVEL >= $log_level Then
 		Local $logColor
 		Switch $LOGLEVEL
@@ -1554,8 +1573,12 @@ Func Out($TEXT, $LOGLEVEL = 1)
 			Case $LVL_ERROR
 				$logColor = $CLR_RED		; CLR is reversed BGR color
 		EndSwitch
-		_GUICtrlRichEdit_SetCharColor($gui_console, $logColor)
-		_GUICtrlRichEdit_AppendText($gui_console, @HOUR & ':' & @MIN & ':' & @SEC & ' - ' & $TEXT & @CRLF)
+		Local $line = @HOUR & ':' & @MIN & ':' & @SEC & ' - ' & $TEXT
+		If $gui_console <> 0 Then
+			_GUICtrlRichEdit_SetCharColor($gui_console, $logColor)
+			_GUICtrlRichEdit_AppendText($gui_console, $line & @CRLF)
+		EndIf
+		WriteTextLogLine($line)
 	EndIf
 EndFunc
 #EndRegion Console
