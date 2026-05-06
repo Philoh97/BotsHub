@@ -251,10 +251,15 @@ Func ApplyLaunchHubCommandLine()
 	If $launchhub_configuration <> '' Then
 		If LoadRunConfigurationByName($launchhub_configuration) Then
 			ApplyConfigToGUI()
-			LoadDefaultLootConfiguration()
-			BuildTreeViewFromCache($gui_treeview_lootoptions)
 		EndIf
 	EndIf
+
+	If $launchhub_loot_configuration <> '' Then
+		LoadLootConfigurationByName($launchhub_loot_configuration)
+	Else
+		LoadDefaultLootConfiguration()
+	EndIf
+	BuildTreeViewFromCache($gui_treeview_lootoptions)
 
 	If $cmdLine[0] >= 3 Then
 		$launchhub_character = $cmdLine[3]
@@ -469,7 +474,7 @@ EndFunc
 Func BotHubLoop()
 	While True
 		If ($runtime_status == 'RUNNING') Then
-			If $run_mode == 'GUI' Then
+			If $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 				DisableGUIComboboxes()
 				If $farm_name == Null Or $farm_name == '' Then
 					Error('This farm does not exist.')
@@ -565,7 +570,7 @@ Func RunFarmLoop()
 	Local $farmFunction = $farm[1]
 	If $run_mode == 'HEADLESS' Then
 		$result = $farmFunction()
-	ElseIf $run_mode == 'GUI' Then
+	ElseIf $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 		Local $timePerRun = UpdateStats($NOT_STARTED)
 		UpdateProgressBar($timePerRun == 0 ? $farm[3] : $timePerRun)
 		AdlibRegister('UpdateProgressBar', 5000)
