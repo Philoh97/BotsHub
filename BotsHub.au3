@@ -281,7 +281,6 @@ Func StartLaunchHubRun()
 
 	GUICtrlSetData($gui_combo_characterchoice, '', $character_name)
 	If (Authentification($character_name) <> $SUCCESS) Then Return
-
 	$runtime_status = 'RUNNING'
 	GUICtrlSetData($gui_startbutton, 'Pause')
 	GUICtrlSetState($gui_stopbutton, $GUI_ENABLE)
