@@ -173,54 +173,34 @@ Func Main()
 		Exit 1
 	EndIf
 
-	If IsLegacyHeadlessCommandLine() Then
-		$run_mode = 'HEADLESS'
-	ElseIf IsLaunchHubCommandLine() Then
+	If IsLaunchHubCommandLine() Then
 		$run_mode = 'LAUNCH_HUB'
 	EndIf
 
 	; GUI free steps
 	FillFarmMap()
-	LoadDefaultRunConfiguration()
-	LoadDefaultLootConfiguration()
+	;LoadDefaultRunConfiguration()
+	;LoadDefaultLootConfiguration()
 
 	If $run_mode == 'GUI' Or $run_mode == 'LAUNCH_HUB' Then
 		CreateGUI()
-		If $run_mode == 'LAUNCH_HUB' Then ApplyLaunchHubCommandLine()
+		If $run_mode == 'LAUNCH_HUB' Then
+		    ApplyLaunchHubCommandLine()
+
+            LoadDefaultLootConfiguration()
+            BuildTreeViewFromCache($gui_treeview_lootoptions)
+        EndIf
 		If $run_mode == 'GUI' Then ApplyConfigToGUI()
 		FillConfigurationCombo($run_configuration)
 		GUISetState(@SW_SHOWNORMAL)
 		Info('GW Bot Hub ' & $GW_BOT_HUB_VERSION)
+
+        LoadDefaultLootConfiguration()
+        BuildTreeViewFromCache($gui_treeview_lootoptions)
 		; Authentication
 		ScanAndUpdateGameClients()
 		RefreshCharactersComboBox()
 		If $run_mode == 'LAUNCH_HUB' Then StartLaunchHubRun()
-	ElseIf $run_mode == 'HEADLESS' Then
-		; Need minimum 4 things to run a bot: slave index, process ID, character name and farm name
-		If $cmdLine[0] < 4 Then
-			MsgBox(0, 'Error', 'The Hub needs 0 or at least 4 arguments.')
-			Exit
-		EndIf
-		$slave_index = $cmdLine[1]
-		$process_id = $cmdLine[2]
-		$character_name = $cmdLine[3]
-		$farm_name = $cmdLine[4]
-
-		Info('Running in CMD mode with process ID: ' & $process_id & ' character name: ' & $character_name & ' farm name: ' & $farm_name)
-
-		Local $openProcess = SafeDllCall9($kernel_handle, 'int', 'OpenProcess', 'int', 0x1F0FFF, 'int', 1, 'int', $process_id)
-		Local $processHandle = IsArray($openProcess) ? $openProcess[0] : 0
-		If $processHandle <> 0 Then
-			Local $windowHandle = GetWindowHandleForProcess($process_id)
-			AddClient($process_id, $processHandle, $windowHandle, $character_name)
-			SelectClient(1)
-		Else
-			MsgBox(0, 'Error', 'GW Process with incorrect handle.')
-			Exit
-		EndIf
-		; Authentication
-		Authentification($character_name)
-		$runtime_status = 'RUNNING'
 	Else
 		MsgBox(0, 'Error', 'Unknown run mode: ' & $run_mode)
 		Exit
@@ -230,11 +210,6 @@ Func Main()
 	BotHubLoop()
 EndFunc
 
-
-;~ Return whether arguments match the current root headless contract.
-Func IsLegacyHeadlessCommandLine()
-	Return $cmdLine[0] >= 4
-EndFunc
 
 
 ;~ Return whether arguments match MacTry LaunchHub: config, loot preset, optional character.
@@ -254,11 +229,6 @@ Func ApplyLaunchHubCommandLine()
 		EndIf
 	EndIf
 
-	If $launchhub_loot_configuration <> '' Then
-		LoadLootConfigurationByName($launchhub_loot_configuration)
-	Else
-		LoadDefaultLootConfiguration()
-	EndIf
 	BuildTreeViewFromCache($gui_treeview_lootoptions)
 
 	If $cmdLine[0] >= 3 Then
@@ -303,27 +273,6 @@ Func LoadRunConfigurationByName($configurationName)
 	LoadRunConfiguration($filePath)
 	$run_configuration = $normalizedName
 	$log_stats_key = GetPresetPrefix($normalizedName)
-	Return True
-EndFunc
-
-
-;~ Load a loot configuration by name from the root loot folder.
-Func LoadLootConfigurationByName($configurationName)
-	Local $normalizedName = NormalizeConfigurationName($configurationName)
-	If $normalizedName == '' Then Return False
-
-	If StringUpper($normalizedName) == 'WEB' Then
-		Warn('WEB loot configuration is not available in the root hub yet. Keeping current loot configuration.')
-		Return False
-	EndIf
-
-	Local $filePath = @ScriptDir & '/conf/loot/' & $normalizedName & '.json'
-	If Not FileExists($filePath) Then
-		Warn('Loot configuration not found: ' & $configurationName)
-		Return False
-	EndIf
-
-	LoadLootConfiguration($filePath)
 	Return True
 EndFunc
 
@@ -625,7 +574,8 @@ EndFunc
 Func LoadDefaultLootConfiguration()
 	Local $filePath = @ScriptDir & '/conf/loot/' & $loot_configuration & '.json'
 	If FileExists($filePath) Then
-		LoadLootConfiguration($filePath)
+	    LoadLootConfiguration($filePath)
+        BuildTreeViewFromCache($gui_treeview_lootoptions)
 	Else
 		Error('No default loot configuration at ' & $filePath)
 	EndIf
