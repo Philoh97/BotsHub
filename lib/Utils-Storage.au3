@@ -536,9 +536,11 @@ Func DefaultShouldStoreItem($item)
 		Local $festivalDropName = $SPECIAL_DROP_NAMES_FROM_IDS[$itemID]
 		Return $cache['Store items.Festival Items.' & $festivalDropName]
 	; --------------------------------------- Trophies ---------------------------------------
+	ElseIf ($itemID == $ID_LOCKPICK) Then
+        Return True
 	ElseIf IsTrophy($itemID) Then
 		If $MAP_FARMED_TROPHIES[$itemID] <> Null Then Return $cache['Store items.Trophies.' & $FARMED_TROPHIES_NAMES_FROM_ID[$itemID]]
-		If $quantity <> 250 Then Return False
+		;If $quantity <> 250 Then Return False
 		Return True
 	; -------------------------------------- Materials --------------------------------------
 	ElseIf IsBasicMaterial($item) Then
@@ -1822,12 +1824,14 @@ Func GetBirthdayCupcakeCount()
 EndFunc
 
 
-;~ Counts gold items in inventory
+;~ Counts gold items in inventory and storage
 Func CountGoldItems()
 	Local $goldItemsCount = 0
 	Local $item
-	For $bagIndex = 1 To $bags_count
+	Local $bagsToSearch[] = [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+	For $bagIndex In $bagsToSearch
 		Local $bag = GetBag($bagIndex)
+		If $bag == 0 Then ContinueLoop
 		For $i = 1 To DllStructGetData($bag, 'slots')
 			$item = GetItemBySlot($bagIndex, $i)
 			If DllStructGetData($item, 'ID') = 0 Then ContinueLoop
@@ -1964,13 +1968,15 @@ Func GetInventoryItemCount($itemID)
 EndFunc
 
 
-;~ Count quantity of each item in inventory, specified in provided array of items
+;~ Count quantity of each item in inventory and storage, specified in provided array of items
 ;~ Returns a corresponding array of counters, of the same size as provided array
 Func CountTheseItems($itemArray)
 	Local $arraySize = UBound($itemArray)
 	Local $counts[$arraySize]
-	For $bagIndex = 1 To 5
+	Local $bagsToSearch[] = [1, 2, 3, 4, 5, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
+	For $bagIndex In $bagsToSearch
 		Local $bag = GetBag($bagIndex)
+		If $bag == 0 Then ContinueLoop
 		Local $slots = DllStructGetData($bag, 'Slots')
 		For $slot = 1 To $slots
 			Local $item = GetItemBySlot($bagIndex, $slot)
