@@ -530,7 +530,7 @@ Func DefaultShouldStoreItem($item)
 		Return $cache['Store items.Armor salvageables.' & $rarityName]
 	; ------------------------------------- Consumables -------------------------------------
 	ElseIf IsConsumable($itemID) Then
-		If $quantity <> 250 Then Return False
+		;If $quantity <> 250 Then Return False
 		Return $cache['Store items.Consumables']
 	ElseIf IsSpecialDrop($itemID) Then
 		Local $festivalDropName = $SPECIAL_DROP_NAMES_FROM_IDS[$itemID]
