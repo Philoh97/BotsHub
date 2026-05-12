@@ -439,6 +439,16 @@ Func RunToKillSpot()
 	MoveTo(-4199, -1475)
 	MoveTo(-4709, -609)
 	MoveTo(-3116, 650)
+	;Wait for Miku
+	Local $me = GetMyAgent()
+	Local $cTargetMiku = GetAgentByID($ID_Miku_Agent)
+	Local $cTarget = GetNearestEnemyToAgent($me)
+	While GetDistance($me, $cTargetMiku) > 624 And GetDistance($me, $cTarget) > 2496
+		Sleep(500)
+		If IsPlayerDead() Then Return
+		$me = GetMyAgent()
+		$cTargetMiku = GetAgentByID($ID_Miku_Agent)
+	WEnd
 	MoveTo(-2518, 631)
 	MoveTo(-2096, -1067)
 	MoveTo(-815, -1898)
