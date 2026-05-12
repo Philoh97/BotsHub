@@ -84,16 +84,16 @@ Func InventoryManagementBeforeRun($tradeTown = $ID_EYE_OF_THE_NORTH)
 		SellItemsToMerchant()
 	EndIf
 	; TODO: generalize this for all materials
-	If GetGoldCharacter() > 10000 Then
+	If GetGoldCharacter() >= 0 Then
 		If $cache['Buy items.Lockpicks'] Then
 			Local $lockpicksToBuy = Floor((GetGoldCharacter() - 10000) / 1500)
 			If $lockpicksToBuy > 0 Then BuyLockpicksInTown($lockpicksToBuy)
 		ElseIf $cache['Buy items.Rare Materials.Obsidian Shard'] Then
 			TravelToOutpost($tradeTown, $district_name)
-			BuyRareMaterialFromMerchantUntilPoor($ID_OBSIDIAN_SHARD, 10000, $ID_GLOB_OF_ECTOPLASM)
+			BuyRareMaterialFromMerchantUntilPoor($ID_OBSIDIAN_SHARD, 0, $ID_GLOB_OF_ECTOPLASM)
 		ElseIf $cache['Buy items.Rare Materials.Glob of Ectoplasm'] Then
 			TravelToOutpost($tradeTown, $district_name)
-			BuyRareMaterialFromMerchantUntilPoor($ID_GLOB_OF_ECTOPLASM, 2000, $ID_OBSIDIAN_SHARD)
+			BuyRareMaterialFromMerchantUntilPoor($ID_GLOB_OF_ECTOPLASM, 0, $ID_OBSIDIAN_SHARD)
 		EndIf
 	EndIf
 	; Max gold in Xunlai chest is 1000 platinums

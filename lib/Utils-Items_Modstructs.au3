@@ -784,26 +784,12 @@ Func DefaultCreateValuableModsByOSWeaponTypeMap()
 	Local Const $scytheModsArray			= []
 	Local Const $spearModsArray				= []
 	Local Const $wandModsArray				= [$STRUCT_MOD_OF_THE_NECROMANCER]
-	Local Const $daggerModsArray			= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $staffModsArray				= [ _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_CHARRSLAYING, $STRUCT_MOD_OF_TROLLSLAYING, $STRUCT_MOD_OF_GIANT_SLAYING, $STRUCT_MOD_OF_DWARF_SLAYING, $STRUCT_MOD_OF_TENGU_SLAYING _
-	]
-	Local Const $bowModsArray				= [ _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER, _
-		$STRUCT_MOD_OF_CHARRSLAYING, $STRUCT_MOD_OF_TROLLSLAYING, $STRUCT_MOD_OF_GIANT_SLAYING, $STRUCT_MOD_OF_DWARF_SLAYING, $STRUCT_MOD_OF_TENGU_SLAYING _
-	]
-	Local Const $axeModsArray				= [ _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER, _
-		$STRUCT_MOD_OF_CHARRSLAYING, $STRUCT_MOD_OF_TROLLSLAYING, $STRUCT_MOD_OF_GIANT_SLAYING, $STRUCT_MOD_OF_DWARF_SLAYING, $STRUCT_MOD_OF_TENGU_SLAYING _
-	]
-	Local Const $hammerModsArray			= [ _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER, _
-		$STRUCT_MOD_OF_CHARRSLAYING, $STRUCT_MOD_OF_TROLLSLAYING, $STRUCT_MOD_OF_GIANT_SLAYING, $STRUCT_MOD_OF_DWARF_SLAYING, $STRUCT_MOD_OF_TENGU_SLAYING _
-	]
-	Local Const $swordModsArray			= [ _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER, _
-		$STRUCT_MOD_OF_CHARRSLAYING, $STRUCT_MOD_OF_TROLLSLAYING, $STRUCT_MOD_OF_GIANT_SLAYING, $STRUCT_MOD_OF_DWARF_SLAYING, $STRUCT_MOD_OF_TENGU_SLAYING _
-	]
+	Local Const $daggerModsArray			= []
+	Local Const $staffModsArray				= [ $STRUCT_MOD_OF_THE_NECROMANCERLAYING]
+	Local Const $bowModsArray				= []
+	Local Const $axeModsArray				= []
+	Local Const $hammerModsArray			= []
+	Local Const $swordModsArray			    = []
 	; Redefining types here remove dependency on GWA2_ID - and we only execute this function once
 	Local Const $IDTypeAxe					= 2
 	Local Const $IDTypeBow					= 5
@@ -828,22 +814,16 @@ EndFunc
 Func DefaultCreateValuableModsByWeaponTypeMap()
 	; Nothing worth on shields - maybe could keep +45^enchanted handles ....
 	Local Const $shieldModsArray	= []
-	Local Const $offhandModsArray	= [$STRUCT_INSCRIPTION_FORGET_ME_NOT, $STRUCT_MOD_HCT_20, $STRUCT_MOD_HSR_20]
-	Local Const $wandModsArray		= [$STRUCT_INSCRIPTION_APTITUDE_NOT_ATTITUDE, $STRUCT_MOD_OF_THE_NECROMANCER]
-	Local Const $staffModsArray		= [$STRUCT_INSCRIPTION_APTITUDE_NOT_ATTITUDE, $STRUCT_MOD_OF_THE_NECROMANCER]
-	Local Const $bowModsArray		= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $axeModsArray		= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $hammerModsArray	= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $swordModsArray		= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $daggerModsArray	= [$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER]
-	Local Const $scytheModsArray	= [ _
-		$STRUCT_MOD_ZEALOUS, $STRUCT_MOD_OF_ENCHANTING, $STRUCT_MOD_SUNDERING, _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER _
-	]
-	Local Const $spearModsArray		= [ _
-		$STRUCT_MOD_OF_ENCHANTING, _
-		$STRUCT_MOD_OF_THE_NECROMANCER, $STRUCT_MOD_OF_THE_RANGER _
-	]
+	Local Const $offhandModsArray	= []
+	Local Const $wandModsArray		= [$STRUCT_MOD_OF_THE_NECROMANCER]
+	Local Const $staffModsArray		= [$STRUCT_MOD_OF_THE_NECROMANCER]
+	Local Const $bowModsArray		= []
+	Local Const $axeModsArray		= []
+	Local Const $hammerModsArray	= []
+	Local Const $swordModsArray		= []
+	Local Const $daggerModsArray	= []
+	Local Const $scytheModsArray	= []
+	Local Const $spearModsArray		= []
 	; Redefining types here remove dependency on GWA2_ID - and we only execute this function once
 	Local Const $IDTypeAxe					= 2
 	Local Const $IDTypeBow					= 5
@@ -867,9 +847,9 @@ EndFunc
 ;~ Creates a map to use to find whether a weapon (not Old School) has a valuable inscription - this does not mean the weapon itself is valuable
 Func DefaultCreateValuableInscriptionsByWeaponTypeMap()
 	Local Const $shieldInscriptionsArray	= []
-	Local Const $offhandInscriptionsArray	= [$STRUCT_INSCRIPTION_FORGET_ME_NOT]
-	Local Const $wandInscriptionsArray		= [$STRUCT_INSCRIPTION_APTITUDE_NOT_ATTITUDE]
-	Local Const $staffInscriptionsArray		= [$STRUCT_INSCRIPTION_APTITUDE_NOT_ATTITUDE]
+	Local Const $offhandInscriptionsArray	= []
+	Local Const $wandInscriptionsArray		= []
+	Local Const $staffInscriptionsArray		= []
 	Local Const $bowInscriptionsArray		= []
 	Local Const $axeInscriptionsArray		= []
 	Local Const $hammerInscriptionsArray	= []
@@ -901,129 +881,22 @@ EndFunc
 Func DefaultCreatePerfectModsByOSWeaponTypeMap()
 	; For martial weapons, only one of those mods is enough to say the weapon is perfect
 	; But for zealous strength and vampiric strength, we need to check that it is not the zealous/vampiric mod
-	Local $martialWeapons = [ _
-		$STRUCT_INSCRIPTION_STRENGTH_AND_HONOR, _
-		$STRUCT_INSCRIPTION_GUIDED_BY_FATE, _
-		$STRUCT_INSCRIPTION_DANCE_WITH_DEATH, _
-		$STRUCT_INSCRIPTION_I_HAVE_THE_POWER, _
-		$STRUCT_INHERENT_ZEALOUS_STRENGTH, _
-		$STRUCT_INHERENT_VAMPIRIC_STRENGTH _
-	]
+	Local $martialWeapons = []
 
 	; Those are common to caster weapons and focii
-	Local $casterAndFocus = [ _
-		$STRUCT_INHERENT_FIRE_MAGIC_HCT, _
-		$STRUCT_INHERENT_FIRE_MAGIC_HSR, _
-		$STRUCT_INHERENT_WATER_MAGIC_HCT, _
-		$STRUCT_INHERENT_WATER_MAGIC_HSR, _
-		$STRUCT_INHERENT_AIR_MAGIC_HCT, _
-		$STRUCT_INHERENT_AIR_MAGIC_HSR, _
-		$STRUCT_INHERENT_EARTH_MAGIC_HCT, _
-		$STRUCT_INHERENT_EARTH_MAGIC_HSR, _
-		$STRUCT_INHERENT_ENERGY_STORAGE_HCT, _
-		$STRUCT_INHERENT_ENERGY_STORAGE_HSR, _
-		$STRUCT_INHERENT_SMITING_PRAYERS_HCT, _
-		$STRUCT_INHERENT_SMITING_PRAYERS_HSR, _
-		$STRUCT_INHERENT_DIVINE_FAVOR_HCT, _
-		$STRUCT_INHERENT_DIVINE_FAVOR_HSR, _
-		$STRUCT_INHERENT_HEALING_PRAYERS_HCT, _
-		$STRUCT_INHERENT_HEALING_PRAYERS_HSR, _
-		$STRUCT_INHERENT_PROTECTION_PRAYERS_HCT, _
-		$STRUCT_INHERENT_PROTECTION_PRAYERS_HSR, _
-		$STRUCT_INHERENT_CHANNELING_MAGIC_HCT, _
-		$STRUCT_INHERENT_CHANNELING_MAGIC_HSR, _
-		$STRUCT_INHERENT_RESTORATION_MAGIC_HCT, _
-		$STRUCT_INHERENT_RESTORATION_MAGIC_HSR, _
-		$STRUCT_INHERENT_COMMUNING_HCT, _
-		$STRUCT_INHERENT_COMMUNING_HSR, _
-		$STRUCT_INHERENT_SPAWNING_POWER_HCT, _
-		$STRUCT_INHERENT_SPAWNING_POWER_HSR, _
-		$STRUCT_INHERENT_ILLUSION_MAGIC_HCT, _
-		$STRUCT_INHERENT_ILLUSION_MAGIC_HSR, _
-		$STRUCT_INHERENT_DOMINATION_MAGIC_HCT, _
-		$STRUCT_INHERENT_DOMINATION_MAGIC_HSR, _
-		$STRUCT_INHERENT_INSPIRATION_MAGIC_HCT, _
-		$STRUCT_INHERENT_INSPIRATION_MAGIC_HSR, _
-		$STRUCT_INHERENT_DEATH_MAGIC_HCT, _
-		$STRUCT_INHERENT_DEATH_MAGIC_HSR, _
-		$STRUCT_INHERENT_BLOOD_MAGIC_HCT, _
-		$STRUCT_INHERENT_BLOOD_MAGIC_HSR, _
-		$STRUCT_INHERENT_SOUL_REAPING_HCT, _
-		$STRUCT_INHERENT_SOUL_REAPING_HSR, _
-		$STRUCT_INHERENT_CURSES_HCT, _
-		$STRUCT_INHERENT_CURSES_HSR _
-	]
+	Local $casterAndFocus = []
 
 	; Those are common to shield and focus - They might be less interesting on one or the other so maybe it will need to be splitted further
-	Local $shieldAndFocus	= [ _
-		$STRUCT_INSCRIPTION_NOT_THE_FACE, _
-		$STRUCT_INSCRIPTION_LEAF_ON_THE_WIND, _
-		$STRUCT_INSCRIPTION_LIKE_A_ROLLING_STONE, _
-		$STRUCT_INSCRIPTION_SLEEP_NOW_IN_THE_FIRE, _
-		$STRUCT_INSCRIPTION_RIDERS_ON_THE_STORM, _
-		$STRUCT_INSCRIPTION_THROUGH_THICK_AND_THIN, _
-		$STRUCT_INSCRIPTION_THE_RIDDLE_OF_STEEL, _
-		$STRUCT_INSCRIPTION_SHELTERED_BY_FAITH, _
-		$STRUCT_INSCRIPTION_RUN_FOR_YOUR_LIFE, _
-		$STRUCT_INSCRIPTION_LUCK_OF_THE_DRAW, _
-		$STRUCT_INHERENT_OF_ILLUSION_MAGIC, _
-		$STRUCT_INHERENT_OF_DOMINATION_MAGIC, _
-		$STRUCT_INHERENT_OF_INSPIRATION, _
-		$STRUCT_INHERENT_OF_BLOOD_MAGIC, _
-		$STRUCT_INHERENT_OF_DEATH_MAGIC, _
-		$STRUCT_INHERENT_OF_SOUL_REAPING, _
-		$STRUCT_INHERENT_OF_CURSE_MAGIC, _
-		$STRUCT_INHERENT_OF_AIR_MAGIC, _
-		$STRUCT_INHERENT_OF_EARTH_MAGIC, _
-		$STRUCT_INHERENT_OF_FIRE_MAGIC, _
-		$STRUCT_INHERENT_OF_WATER_MAGIC, _
-		$STRUCT_INHERENT_OF_HEALING_PRAYERS, _
-		$STRUCT_INHERENT_OF_SMITING_PRAYERS, _
-		$STRUCT_INHERENT_OF_PROTECTION_PRAYERS, _
-		$STRUCT_INHERENT_OF_DIVINE_FAVOR, _
-		$STRUCT_INHERENT_OF_COMMUNING_MAGIC, _
-		$STRUCT_INHERENT_OF_RESTORATION_MAGIC, _
-		$STRUCT_INHERENT_OF_CHANNELING_MAGIC, _
-		$STRUCT_INHERENT_OF_SPAWNING_MAGIC, _
-		$STRUCT_INHERENT_ARMOR_VS_UNDEAD, _
-		$STRUCT_INHERENT_ARMOR_VS_CHARR, _
-		$STRUCT_INHERENT_ARMOR_VS_TROLLS, _
-		$STRUCT_INHERENT_ARMOR_VS_PLANTS, _
-		$STRUCT_INHERENT_ARMOR_VS_SKELETONS, _
-		$STRUCT_INHERENT_ARMOR_VS_GIANTS, _
-		$STRUCT_INHERENT_ARMOR_VS_DWARVES, _
-		$STRUCT_INHERENT_ARMOR_VS_TENGU, _
-		$STRUCT_INHERENT_ARMOR_VS_DEMONS, _
-		$STRUCT_INHERENT_ARMOR_VS_DRAGONS, _
-		$STRUCT_INHERENT_ARMOR_VS_OGRES, _
-		$STRUCT_MOD_OF_DEVOTION, _
-		$STRUCT_MOD_OF_ENDURANCE, _
-		$STRUCT_MOD_OF_FORTITUDE _
-	]
+	Local $shieldAndFocus	= []
 
-	Local $casterWeapons = [ _
-		$STRUCT_INSCRIPTION_HALE_AND_HEARTY, _
-		$STRUCT_INSCRIPTION_HAVE_FAITH, _
-		$STRUCT_INSCRIPTION_SEIZE_THE_DAY, _
-		$STRUCT_INSCRIPTION_APTITUDE_NOT_ATTITUDE _
-	]
+	Local $casterWeapons = []
 	_ArrayAdd($casterWeapons, $casterAndFocus)
 
-	Local $focus = [ _
-		$STRUCT_INSCRIPTION_FORGET_ME_NOT, _
-		$STRUCT_INSCRIPTION_HAIL_TO_THE_KING, _
-		$STRUCT_INSCRIPTION_FAITH_IS_MY_SHIELD, _
-		$STRUCT_INSCRIPTION_LIFE_IS_PAIN, _
-		$STRUCT_INSCRIPTION_LIVE_FOR_TODAY _
-	]
+	Local $focus = []
 	_ArrayAdd($focus, $casterAndFocus)
 	_ArrayAdd($focus, $shieldAndFocus)
 
-	Local $shield = [ _
-		$STRUCT_INSCRIPTION_I_CAN_SEE_CLEARLY_NOW, _
-		$STRUCT_INSCRIPTION_SWIFT_AS_THE_WIND, _
-		$STRUCT_INSCRIPTION_ONLY_THE_STRONG_SURVIVE _
-	]
+	Local $shield = []
 	_ArrayAdd($shield, $shieldAndFocus)
 
 	; Empty because there are no OS (Old School) scythes and spears
