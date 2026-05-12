@@ -36,6 +36,7 @@
 #include 'lib/Utils.au3'
 #include 'lib/Utils-Agents.au3'
 #include 'lib/Utils-Storage.au3'
+#include 'lib/Utils-Trade.au3'
 #include 'lib/Utils-Debugger.au3'
 #include 'lib/Build_PW_Heroic-Refrain.au3'
 #include 'lib/BotsHub-GUI.au3'
@@ -440,8 +441,7 @@ Func BotHubLoop()
 				If Not GetIsRendering() Then EnableRendering()
 				Info('Stop requested: running inventory management before closing...')
 				InventoryManagementBeforeRun()
-				Warn('Stopped, schließen jetzt!.')
-				Sleep(20000)
+				;TradeWithPylosAlect()
 				ResetBotsSetups()
 				Warn('Stopped.')
 				CloseGameClient()
