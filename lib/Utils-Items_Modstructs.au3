@@ -785,7 +785,7 @@ Func DefaultCreateValuableModsByOSWeaponTypeMap()
 	Local Const $spearModsArray				= []
 	Local Const $wandModsArray				= [$STRUCT_MOD_OF_THE_NECROMANCER]
 	Local Const $daggerModsArray			= []
-	Local Const $staffModsArray				= [ $STRUCT_MOD_OF_THE_NECROMANCERLAYING]
+	Local Const $staffModsArray				= [$STRUCT_MOD_OF_THE_NECROMANCER]
 	Local Const $bowModsArray				= []
 	Local Const $axeModsArray				= []
 	Local Const $hammerModsArray			= []
